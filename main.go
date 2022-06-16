@@ -25,10 +25,14 @@ func main() {
 		"layout.gohtml", "contact.gohtml",
 	))))
 
-	r.Get("/signup", controllers.StaticHandler(views.Must(views.ParseFS(
+	usersC := controllers.Users{}
+	usersC.Templates.New = views.Must(views.ParseFS(
 		templates.FS,
 		"layout.gohtml", "signup.gohtml",
-	))))
+	))
+
+	r.Get("/signup", usersC.New)
+	r.Post("/users", usersC.Create)
 
 	r.Get("/faq", controllers.FAQ(views.Must(views.ParseFS(
 		templates.FS,
