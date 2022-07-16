@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/andrmnz/go_web/controllers"
+	models "github.com/andrmnz/go_web/models/sql"
 	"github.com/andrmnz/go_web/templates"
 	"github.com/andrmnz/go_web/views"
 	"github.com/go-chi/chi/v5"
@@ -24,15 +25,35 @@ func main() {
 		templates.FS,
 		"layout.gohtml", "contact.gohtml",
 	))))
+	
+	cfg := models.DefaultPostgresConfig()
+	db, err := models.Open(cfg)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	userService := models.UserService{
+		DB: db,
+	}
 
-	usersC := controllers.Users{}
+	usersC := controllers.Users{
+		UserService: &userService,
+	}
+
 	usersC.Templates.New = views.Must(views.ParseFS(
 		templates.FS,
 		"layout.gohtml", "signup.gohtml",
 	))
 
+	usersC.Templates.SignIn = views.Must(views.ParseFS(
+		templates.FS,
+		"layout.gohtml", "signin.gohtml",
+	))
+
 	r.Get("/signup", usersC.New)
+	r.Get("/signin", usersC.SignIn)
 	r.Post("/users", usersC.Create)
+	r.Post("/signin", usersC.ProcessSignIn)
 
 	r.Get("/faq", controllers.FAQ(views.Must(views.ParseFS(
 		templates.FS,
