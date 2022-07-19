@@ -61,6 +61,24 @@ type Users struct {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	 }
+	 
+	 cookie := http.Cookie{
+		Name: "email",
+		Value: user.Email,
+		Path: "/",
+		HttpOnly: true,
+	 }
+	 
+	 http.SetCookie(w, &cookie)
 
 	 fmt.Fprintf(w, "User authenticated: %+v", user)
+ }
+ 
+ func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
+	email, err := r.Cookie("email")
+	if err != nil {
+		fmt.Fprintf(w, "The email cookie could not be read.")
+		return
+	}
+	fmt.Fprintf(w, "Email cookie: %s\n", email.Value)
  }

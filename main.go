@@ -54,6 +54,7 @@ func main() {
 	r.Get("/signin", usersC.SignIn)
 	r.Post("/users", usersC.Create)
 	r.Post("/signin", usersC.ProcessSignIn)
+	r.Get("/users/me", usersC.CurrentUser)
 
 	r.Get("/faq", controllers.FAQ(views.Must(views.ParseFS(
 		templates.FS,
